@@ -1,0 +1,11 @@
+[
+    {
+        "model": "kiddosapi.kid",
+        "pk": 1,
+        "fields": {
+            "user": 1,
+            "age": 9,
+            "parent": 2
+        }
+    }
+]

@@ -1,0 +1,30 @@
+[
+    {
+        "model": "kiddosapi.gamesystem",
+        "pk": 1,
+        "fields": {
+            "name": "Nintendo Switch"
+        }
+    },
+    {
+        "model": "kiddosapi.gamesystem",
+        "pk": 2,
+        "fields": {
+            "name": "XBOX"
+        }
+    },
+    {
+        "model": "kiddosapi.gamesystem",
+        "pk": 3,
+        "fields": {
+            "name": "PlayStation"
+        }
+    },
+    {
+        "model": "kiddosapi.gamesystem",
+        "pk": 4,
+        "fields": {
+            "name": "CPU"
+        }
+    }
+]

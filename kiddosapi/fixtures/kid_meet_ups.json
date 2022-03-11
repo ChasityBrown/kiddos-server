@@ -1,0 +1,10 @@
+[
+    {
+        "model": "kiddosapi.kidmeetup",
+        "pk": 1,
+        "fields": {
+            "kid": 1,
+            "meet_up": 1
+        }
+    }
+]

@@ -1,0 +1,14 @@
+[
+    {
+        "model": "kiddosapi.meetup",
+        "pk": 1,
+        "fields": {
+            "game": 1,
+            "date": null,
+            "kid": 1,
+            "room": 1,
+            "game_system": 1,
+            "approved": null
+        }
+    }
+]

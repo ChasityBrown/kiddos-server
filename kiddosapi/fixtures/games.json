@@ -1,0 +1,22 @@
+[
+    {
+        "model": "kiddosapi.game",
+        "pk": 1,
+        "fields": {
+            "name": "Fortnite",
+            "kid": 1,
+            "approved": null,
+            "min_age": null
+        }
+    },
+    {
+        "model": "kiddosapi.game",
+        "pk": 2,
+        "fields": {
+            "name": "Roblox: Escape the Facility",
+            "kid": 1,
+            "approved": null,
+            "min_age": null
+        }
+    }
+]

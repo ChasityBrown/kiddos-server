@@ -1,0 +1,26 @@
+[
+    {
+        "model": "kiddosapi.room",
+        "pk": 1,
+        "fields": {
+            "name": "Noob Spot",
+            "parent": 2
+        }
+    },
+    {
+        "model": "kiddosapi.room",
+        "pk": 2,
+        "fields": {
+            "name": "Dog Water",
+            "parent": 2
+        }
+    },
+    {
+        "model": "kiddosapi.room",
+        "pk": 3,
+        "fields": {
+            "name": "Pros",
+            "parent": 2
+        }
+    }
+]

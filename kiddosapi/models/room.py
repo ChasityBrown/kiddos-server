@@ -1,7 +1,7 @@
 from django.db import models
-
+from django.contrib.auth.models import User
 
 class Room(models.Model):
 
     name = models.CharField(max_length=50)
-    parent = models.ForeignKey("User", on_delete=models.CASCADE)
+    parent = models.ForeignKey(User, on_delete=models.CASCADE)
