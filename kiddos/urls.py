@@ -14,8 +14,19 @@ Including another URLconf
     2. Add a URL to urlpatterns:  path('blog/', include('blog.urls'))
 """
 from django.contrib import admin
+from django.conf.urls import include
 from django.urls import path
+from kiddosapi.views import register_user, login_user, GameView
+from rest_framework import routers
 
+router = routers.DefaultRouter(trailing_slash=False)
+router.register(r'games', GameView, 'game')
 urlpatterns = [
+    # Requests to http://localhost:8000/register will be routed to the register_user function
+    path('register', register_user), 
+    # Requests to http://localhost:8000/login will be routed to the login_user function
+    path('login', login_user),
+    path('api-auth', include('rest_framework.urls', namespace='rest_framework')),
     path('admin/', admin.site.urls),
+    path('', include(router.urls)),
 ]
