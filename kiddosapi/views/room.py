@@ -1,65 +1,65 @@
-"""View module for handling requests about game"""
+"""View module for handling requests about room"""
 from django.http import HttpResponseServerError
 from django.core.exceptions import ValidationError
 from rest_framework.viewsets import ViewSet
 from rest_framework.response import Response
 from rest_framework.permissions import DjangoModelPermissions
 from rest_framework import serializers, status
-from kiddosapi.models import Game, Kid
+from kiddosapi.models import Room, Kid
 
 
-class GameView(ViewSet):
-    """Kiddos game view"""
+class RoomView(ViewSet):
+    """Kiddos room view"""
     permission_classes = [ DjangoModelPermissions ]
-    queryset = Game.objects.none()
+    queryset = Room.objects.none()
 
     def retrieve(self, request, pk):
-        """Handle GET requests for single game 
+        """Handle GET requests for single room 
         
         Returns:
-            Response -- JSON serialized game 
+            Response -- JSON serialized room 
         """
         try:
-            game = Game.objects.get(pk=pk)
-            serializer = GameSerializer(game)
+            room = Room.objects.get(pk=pk)
+            serializer = RoomSerializer(room)
             return Response(serializer.data)
-        except Game.DoesNotExist as ex:
+        except Room.DoesNotExist as ex:
             return Response({'message': ex.args[0]}, status=status.HTTP_404_NOT_FOUND) 
 
     def list(self, request):
-        """Handle GET requests to get all game 
+        """Handle GET requests to get all room 
 
         Returns:
-            Response -- JSON serialized list of game
+            Response -- JSON serialized list of room
         """
-        games = Game.objects.all()
-        serializer = GameSerializer(games, many=True)
+        rooms = Room.objects.all()
+        serializer = RoomSerializer(rooms, many=True)
         return Response(serializer.data)
     
     def create(self, request):
         """Handle POST operations
 
         Returns:
-            Response -- JSON serialized game instance
+            Response -- JSON serialized room instance
         """
-        kid = Kid.objects.get(user=request.auth.user)
+        parent = Kid.objects.get(user=request.auth.user)
         try:
-            serializer = CreateGameSerializer(data=request.data)
+            serializer = CreateRoomSerializer(data=request.data)
             serializer.is_valid(raise_exception=True)
-            serializer.save(kid=kid)
+            serializer.save(parent=parent)
             return Response(serializer.data, status=status.HTTP_201_CREATED)
         except ValidationError as ex:
             return Response({'message': ex.args[0]}, status=status.HTTP_400_BAD_REQUEST)
 
     def update(self, request, pk):
-        """Handle PUT requests for a game
+        """Handle PUT requests for a room
 
         Returns:
             Response -- Empty body with 204 status code
         """
         try:
-            game = Game.objects.get(pk=pk)
-            serializer = CreateGameSerializer(game, data=request.data)
+            room = Room.objects.get(pk=pk)
+            serializer = CreateRoomSerializer(room, data=request.data)
             serializer.is_valid(raise_exception=True)
             serializer.save()
             return Response(None, status=status.HTTP_204_NO_CONTENT)
@@ -67,20 +67,20 @@ class GameView(ViewSet):
             return Response({'message': ex.args[0]}, status=status.HTTP_400_BAD_REQUEST)
         
     def destroy(self, request, pk):
-        game = Game.objects.get(pk=pk)
-        game.delete()
+        room = Room.objects.get(pk=pk)
+        room.delete()
         return Response(None, status=status.HTTP_204_NO_CONTENT)
         
     
-class GameSerializer(serializers.ModelSerializer):
-    """JSON serializer for game
+class RoomSerializer(serializers.ModelSerializer):
+    """JSON serializer for room
     """
     class Meta:
-        model = Game
-        fields = ('id', 'name', 'kid', 'approved', 'min_age')
+        model = Room
+        fields = ('id', 'name', 'parent')
         depth = 1
         
-class CreateGameSerializer(serializers.ModelSerializer):
+class CreateRoomSerializer(serializers.ModelSerializer):
     class Meta:
-        model = Game
+        model = Room
         fields = ['id', 'name']
