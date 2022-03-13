@@ -57,11 +57,12 @@ class GameView(ViewSet):
         Returns:
             Response -- Empty body with 204 status code
         """
+        parent = Kid.objects.get(user=request.auth.user)
         try:
             game = Game.objects.get(pk=pk)
             serializer = CreateGameSerializer(game, data=request.data)
             serializer.is_valid(raise_exception=True)
-            serializer.save()
+            serializer.save(parent=parent)
             return Response(None, status=status.HTTP_204_NO_CONTENT)
         except ValidationError as ex:
             return Response({'message': ex.args[0]}, status=status.HTTP_400_BAD_REQUEST)
@@ -78,7 +79,7 @@ class GameSerializer(serializers.ModelSerializer):
     class Meta:
         model = Game
         fields = ('id', 'name', 'kid', 'approved', 'min_age')
-        depth = 1
+        depth = 2
         
 class CreateGameSerializer(serializers.ModelSerializer):
     class Meta:

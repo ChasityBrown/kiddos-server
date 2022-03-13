@@ -78,7 +78,6 @@ class RoomSerializer(serializers.ModelSerializer):
     class Meta:
         model = Room
         fields = ('id', 'name', 'parent')
-        depth = 1
         
 class CreateRoomSerializer(serializers.ModelSerializer):
     class Meta:
