@@ -7,5 +7,14 @@
             "age": 9,
             "parent": 2
         }
+    },
+    {
+        "model": "kiddosapi.kid",
+        "pk": 2,
+        "fields": {
+            "user": 3,
+            "age": 11,
+            "parent": 2
+        }
     }
 ]
