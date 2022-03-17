@@ -1,5 +1,5 @@
 from django.contrib.auth import authenticate
-from django.contrib.auth.models import User
+from django.contrib.auth.models import User, Group
 from rest_framework.authtoken.models import Token
 from rest_framework.decorators import api_view, permission_classes
 from rest_framework.permissions import AllowAny
@@ -46,22 +46,37 @@ def register_user(request):
 
     # Create a new user by invoking the `create_user` helper method
     # on Django's built-in User model
-    new_user = User.objects.create_user(
-        username=request.data['username'],
-        password=request.data['password'],
-        first_name=request.data['first_name'],
-        last_name=request.data['last_name']
-    )
-
-    # Now save the extra info in the kiddosapi_kid table
-    kid = Kid.objects.create(
-        age=request.data['age'],
-        user=new_user,
-        parent_id=request.data['id']
-    )
-
-    # Use the REST Framework's token generator on the new user account
-    token = Token.objects.create(user=kid.user)
-    # Return the token to the client
-    data = { 'token': token.key }
-    return Response(data)
+    if (request.data['parent']):
+    
+        new_user = User.objects.create_user(
+            username=request.data['username'],
+            password=request.data['password'],
+            first_name=request.data['first_name'],
+            last_name=request.data['last_name'],
+            is_staff=True
+        )
+        token = Token.objects.create(user=new_user)
+        # Return the token to the client
+        data = { 'token': token.key }
+        return Response(data)
+        # Now save the extra info in the kiddosapi_kid table
+    else:    
+        kid_group = Group.objects.get(name="Kids")
+        new_user = User.objects.create_user(
+            username=request.data['username'],
+            password=request.data['password'],
+            first_name=request.data['first_name'],
+            last_name=request.data['last_name']
+        )
+        parent = User.objects.get(username=request.data['parent_username'])
+        kid = Kid.objects.create(
+            age=request.data['age'],
+            user=new_user,
+            parent=parent
+        )
+        new_user.groups.add(kid_group)
+        # Use the REST Framework's token generator on the new user account
+        token = Token.objects.create(user=kid.user)
+        # Return the token to the client
+        data = { 'token': token.key }
+        return Response(data)

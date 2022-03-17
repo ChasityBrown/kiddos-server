@@ -5,35 +5,35 @@ from rest_framework.viewsets import ViewSet
 from rest_framework.response import Response
 from rest_framework.permissions import DjangoModelPermissions
 from rest_framework import serializers, status
-from kiddosapi.models import Game, Kid
+from kiddosapi.models import MeetUp, Kid
 
 
-class GameView(ViewSet):
-    """Kiddos game view"""
+class MeetUpView(ViewSet):
+    """Kiddos meetUp view"""
     permission_classes = [ DjangoModelPermissions ]
-    queryset = Game.objects.none()
+    queryset = MeetUp.objects.none()
 
     def retrieve(self, request, pk):
-        """Handle GET requests for single game 
+        """Handle GET requests for single meet up 
         
         Returns:
-            Response -- JSON serialized game 
+            Response -- JSON serialized meet up 
         """
         try:
-            game = Game.objects.get(pk=pk)
-            serializer = GameSerializer(game)
+            meet_up = MeetUp.objects.get(pk=pk)
+            serializer = MeetUpSerializer(meet_up)
             return Response(serializer.data)
-        except Game.DoesNotExist as ex:
+        except MeetUp.DoesNotExist as ex:
             return Response({'message': ex.args[0]}, status=status.HTTP_404_NOT_FOUND) 
 
     def list(self, request):
-        """Handle GET requests to get all game 
+        """Handle GET requests to get all meet ups 
 
         Returns:
-            Response -- JSON serialized list of game
+            Response -- JSON serialized list of meet ups
         """
-        games = Game.objects.all()
-        serializer = GameSerializer(games, many=True)
+        meet_ups = MeetUp.objects.all()
+        serializer = MeetUpSerializer(meet_ups, many=True)
         return Response(serializer.data)
     
     def create(self, request):
@@ -44,7 +44,7 @@ class GameView(ViewSet):
         """
         kid = Kid.objects.get(user=request.auth.user)
         try:
-            serializer = CreateGameSerializer(data=request.data)
+            serializer = CreateMeetUpSerializer(data=request.data)
             serializer.is_valid(raise_exception=True)
             serializer.save(kid=kid)
             return Response(serializer.data, status=status.HTTP_201_CREATED)
@@ -57,31 +57,30 @@ class GameView(ViewSet):
         Returns:
             Response -- Empty body with 204 status code
         """
-        parent = Kid.objects.get(user=request.auth.user)
         try:
-            game = Game.objects.get(pk=pk)
-            serializer = CreateGameSerializer(game, data=request.data)
+            meet_up = MeetUp.objects.get(pk=pk)
+            serializer = CreateMeetUpSerializer(meet_up, data=request.data)
             serializer.is_valid(raise_exception=True)
-            serializer.save(parent=parent)
+            serializer.save()
             return Response(None, status=status.HTTP_204_NO_CONTENT)
         except ValidationError as ex:
             return Response({'message': ex.args[0]}, status=status.HTTP_400_BAD_REQUEST)
         
     def destroy(self, request, pk):
-        game = Game.objects.get(pk=pk)
-        game.delete()
+        meet_up = MeetUp.objects.get(pk=pk)
+        meet_up.delete()
         return Response(None, status=status.HTTP_204_NO_CONTENT)
         
     
-class GameSerializer(serializers.ModelSerializer):
-    """JSON serializer for game
+class MeetUpSerializer(serializers.ModelSerializer):
+    """JSON serializer for meet up
     """
     class Meta:
-        model = Game
-        fields = ('id', 'name', 'kid', 'approved', 'min_age')
-        depth = 2
+        model = MeetUp
+        fields = ('id', 'game', 'kid', 'approved', 'game_system', 'date', 'room')
+        depth = 1
         
-class CreateGameSerializer(serializers.ModelSerializer):
+class CreateMeetUpSerializer(serializers.ModelSerializer):
     class Meta:
-        model = Game
-        fields = ['id', 'name']
+        model = MeetUp
+        fields = ['id', 'game', 'game_system', 'room']
