@@ -48,7 +48,21 @@ class AdminView(ViewSet):
             serializer = MeetUpSerializer(meet_ups, many=True)
             return Response(serializer.data)
         
-    
+    @action(methods=['put'], detail=True)
+    def updategames(self, request, pk):
+        """Put request for parents to update games for approval and add min age"""
+        parent = request.auth.user
+        if parent.is_staff:
+            try:
+                game = Game.objects.get(pk=pk)
+                game.name = request.data['name']
+                game.approved = request.data['approved']
+                game.min_age = request.data['min_age']
+                game.save()
+                return Response(None, status=status.HTTP_204_NO_CONTENT)
+            except ValidationError as ex:
+                return Response({'message': ex.args[0]}, status=status.HTTP_400_BAD_REQUEST)
+        
     
 class GameSerializer(serializers.ModelSerializer):
     """JSON serializer for game
