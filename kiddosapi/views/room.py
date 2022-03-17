@@ -42,7 +42,7 @@ class RoomView(ViewSet):
         Returns:
             Response -- JSON serialized room instance
         """
-        parent = Kid.objects.get(user=request.auth.user)
+        parent = request.auth.user
         try:
             serializer = CreateRoomSerializer(data=request.data)
             serializer.is_valid(raise_exception=True)
