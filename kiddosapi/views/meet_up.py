@@ -1,6 +1,8 @@
 """View module for handling requests about game"""
 from django.http import HttpResponseServerError
 from django.core.exceptions import ValidationError
+from django.contrib.auth.models import User
+from rest_framework.decorators import action
 from rest_framework.viewsets import ViewSet
 from rest_framework.response import Response
 from rest_framework.permissions import DjangoModelPermissions
@@ -32,9 +34,23 @@ class MeetUpView(ViewSet):
         Returns:
             Response -- JSON serialized list of meet ups
         """
-        meet_ups = MeetUp.objects.all()
-        serializer = MeetUpSerializer(meet_ups, many=True)
-        return Response(serializer.data)
+        user = User.objects.get(id=request.auth.user.id)
+        if user.is_staff:
+            meet_ups = MeetUp.objects.all() 
+            serializer = MeetUpSerializer(meet_ups, many=True)
+            return Response(serializer.data)
+        else:
+            meet_ups = MeetUp.objects.all()
+            game = request.query_params.get('game', None)
+            kid = Kid.objects.get(user=request.auth.user)
+            if game is not None:
+                meet_ups = meet_ups.filter(game_id=game)
+            # Set the `joined` property on every meet_up
+            for meet_up in meet_ups:
+                # Check to see if the kid is in the attendees list on the meet_up
+                meet_up.joined = kid in meet_up.attendees.all()
+            serializer = MeetUpSerializer(meet_ups, many=True)
+            return Response(serializer.data)
     
     def create(self, request):
         """Handle POST operations
@@ -70,6 +86,24 @@ class MeetUpView(ViewSet):
         meet_up = MeetUp.objects.get(pk=pk)
         meet_up.delete()
         return Response(None, status=status.HTTP_204_NO_CONTENT)
+    
+    @action(methods=['post'], detail=True)
+    def signup(self, request, pk):
+        """Post request for a user to sign up for an event"""
+    
+        kid = Kid.objects.get(user=request.auth.user)
+        meet_up = MeetUp.objects.get(pk=pk)
+        meet_up.attendees.add(kid) #Adds row to meet_up_kid join table when kid joins meet_up
+        return Response({'message': 'Kid added'}, status=status.HTTP_201_CREATED)
+    
+    @action(methods=['put'], detail=True)
+    def leave(self, request, pk):
+        """Post request for a user to sign up for an meet_up"""
+    
+        kid = Kid.objects.get(user=request.auth.user)
+        meet_up = MeetUp.objects.get(pk=pk)
+        meet_up.attendees.remove(kid)
+        return Response({'message': 'Kid removed'}, status=status.HTTP_204_NO_CONTENT)
         
     
 class MeetUpSerializer(serializers.ModelSerializer):
@@ -77,7 +111,7 @@ class MeetUpSerializer(serializers.ModelSerializer):
     """
     class Meta:
         model = MeetUp
-        fields = ('id', 'game', 'kid', 'approved', 'game_system', 'date', 'room')
+        fields = ('id', 'game', 'kid', 'approved', 'game_system', 'date', 'room', 'attendees', 'joined')
         depth = 1
         
 class CreateMeetUpSerializer(serializers.ModelSerializer):

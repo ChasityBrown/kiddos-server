@@ -1,6 +1,7 @@
 """View module for handling requests about room"""
 from django.http import HttpResponseServerError
 from django.core.exceptions import ValidationError
+from django.contrib.auth.models import User
 from rest_framework.decorators import action
 from rest_framework.viewsets import ViewSet
 from rest_framework.response import Response
@@ -33,13 +34,20 @@ class RoomView(ViewSet):
         Returns:
             Response -- JSON serialized list of room
         """
-        rooms = Room.objects.all()
-        kid = Kid.objects.get(user=request.auth.user)
-        for room in rooms:
-            # Check to see if the room is in the attendees list on the room
-            room.faved = kid in room.fave_rooms.all()
-        serializer = RoomSerializer(rooms, many=True)
-        return Response(serializer.data)
+        
+        user = User.objects.get(id=request.auth.user.id)
+        if user.is_staff:
+            rooms = Room.objects.all() 
+            serializer = RoomSerializer(rooms, many=True)
+            return Response(serializer.data)
+        else:
+            rooms = Room.objects.all()
+            kid = Kid.objects.get(user=request.auth.user)
+            for room in rooms:
+                # Check to see if the room is in the attendees list on the room
+                room.faved = kid in room.fave_rooms.all()
+            serializer = RoomSerializer(rooms, many=True)
+            return Response(serializer.data)
     
     def create(self, request):
         """Handle POST operations
@@ -62,6 +70,7 @@ class RoomView(ViewSet):
         Returns:
             Response -- Empty body with 204 status code
         """
+        
         try:
             room = Room.objects.get(pk=pk)
             serializer = CreateRoomSerializer(room, data=request.data)

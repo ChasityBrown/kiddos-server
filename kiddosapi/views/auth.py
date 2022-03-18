@@ -47,7 +47,7 @@ def register_user(request):
     # Create a new user by invoking the `create_user` helper method
     # on Django's built-in User model
     if (request.data['parent']):
-    
+        parent_group = Group.objects.get(name="Parents")
         new_user = User.objects.create_user(
             username=request.data['username'],
             password=request.data['password'],
@@ -55,6 +55,7 @@ def register_user(request):
             last_name=request.data['last_name'],
             is_staff=True
         )
+        new_user.groups.add(parent_group)
         token = Token.objects.create(user=new_user)
         # Return the token to the client
         data = { 'token': token.key }

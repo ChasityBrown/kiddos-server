@@ -1,6 +1,7 @@
 """View module for handling requests about game"""
 from django.http import HttpResponseServerError
 from django.core.exceptions import ValidationError
+from django.contrib.auth.models import User
 from rest_framework.decorators import action
 from rest_framework.viewsets import ViewSet
 from rest_framework.response import Response
@@ -33,13 +34,19 @@ class GameView(ViewSet):
         Returns:
             Response -- JSON serialized list of game
         """
-        games = Game.objects.all()
-        kid = Kid.objects.get(user=request.auth.user)
-        for game in games:
-            # Check to see if the gamer is in the attendees list on the game
-            game.faved = kid in game.fave_games.all()
-        serializer = GameSerializer(games, many=True)     
-        return Response(serializer.data)
+        user = User.objects.get(id=request.auth.user.id)
+        if user.is_staff:
+            games = Game.objects.all() 
+            serializer = GameSerializer(games, many=True)
+            return Response(serializer.data)
+        else:
+            games = Game.objects.all()
+            kid = Kid.objects.get(user=request.auth.user)
+            for game in games:
+                # Check to see if the gamer is in the attendees list on the game
+                game.faved = kid in game.fave_games.all()
+            serializer = GameSerializer(games, many=True)     
+            return Response(serializer.data)
     
     def create(self, request):
         """Handle POST operations
