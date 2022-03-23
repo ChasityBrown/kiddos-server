@@ -48,6 +48,38 @@ class AdminView(ViewSet):
             serializer = MeetUpSerializer(meet_ups, many=True)
             return Response(serializer.data)
         
+    @action(methods=['get'], detail=False)
+    def gamebyid(self, request, pk):
+        """Get request for parents to get a list of everything at once"""
+        try:
+            game = Game.objects.get(pk=pk)
+            serializer = GameSerializer(game)
+            return Response(serializer.data)
+        except Game.DoesNotExist as ex:
+            return Response({'message': ex.args[0]}, status=status.HTTP_404_NOT_FOUND) 
+    
+    
+        
+    # @action(methods=['put'], detail=True)
+    # def meetUpapproval(self, request, pk):
+    #     """Put request for parents to approve meetups and add date and time"""
+        
+    #     parent = request.auth.user
+    #     if parent.is_staff:
+    #         try:
+    #             meet_up = MeetUp.objects.get(pk=pk)
+    #             meet_up.game = request.data['game']
+    #             meet_up.game_system = request.data['game_system']
+    #             meet_up.room = request.data['room']
+    #             meet_up.approved = request.data['approved']
+    #             meet_up.date = request.data['date']
+    #             meet_up.save()
+    #             return Response(None, status=status.HTTP_204_NO_CONTENT)
+    #         except ValidationError as ex:
+    #             return Response({'message': ex.args[0]}, status=status.HTTP_400_BAD_REQUEST)
+    #     else:
+    #         return Response({'message': ex.args[0]}, status=status.HTTP_400_BAD_REQUEST )
+            
     @action(methods=['put'], detail=True)
     def updategames(self, request, pk):
         """Put request for parents to update games for approval and add min age"""

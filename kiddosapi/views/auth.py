@@ -27,7 +27,9 @@ def login_user(request):
         token = Token.objects.get(user=authenticated_user)
         data = {
             'valid': True,
-            'token': token.key
+            'token': token.key,
+            'id': token.user_id,
+            'is_staff': authenticated_user.is_staff
         }
         return Response(data)
     else:
@@ -58,7 +60,9 @@ def register_user(request):
         new_user.groups.add(parent_group)
         token = Token.objects.create(user=new_user)
         # Return the token to the client
-        data = { 'token': token.key }
+        data = { 'token': token.key,
+                'is_staff': new_user.is_staff,
+                'id': new_user.id}
         return Response(data)
         # Now save the extra info in the kiddosapi_kid table
     else:    

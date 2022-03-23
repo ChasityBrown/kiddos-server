@@ -16,11 +16,12 @@ Including another URLconf
 from django.contrib import admin
 from django.conf.urls import include
 from django.urls import path
-from kiddosapi.views import register_user, login_user, GameView, RoomView, MeetUpView, AdminView, GameSystemView
+from kiddosapi.views import register_user, login_user, GameView, RoomView, MeetUpView, AdminView, GameSystemView, KidView
 from rest_framework import routers
 
 router = routers.DefaultRouter(trailing_slash=False)
 router.register(r'games', GameView, 'game')
+router.register(r'kids', KidView, 'kid')
 router.register(r'rooms', RoomView, 'room')
 router.register(r'meetUps', MeetUpView, 'meet_up')
 router.register(r'parents', AdminView, 'parent')

@@ -69,7 +69,7 @@ class GameView(ViewSet):
         Returns:
             Response -- Empty body with 204 status code
         """
-        parent = Kid.objects.get(user=request.auth.user)
+        parent = request.auth.user
         try:
             game = Game.objects.get(pk=pk)
             serializer = CreateGameSerializer(game, data=request.data)

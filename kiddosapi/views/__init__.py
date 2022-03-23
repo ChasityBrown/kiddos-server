@@ -4,3 +4,4 @@ from .room import RoomView
 from .meet_up import MeetUpView
 from .admins import AdminView
 from .game_system import GameSystemView
+from .kid import KidView
